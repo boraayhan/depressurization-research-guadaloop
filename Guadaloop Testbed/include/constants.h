@@ -1,3 +1,4 @@
+#pragma once
 #include "data_structs.h"
 
 const pidSetting HVS_PID = pidSetting{1, 0.1, 0.5}; // FIXME: Tune

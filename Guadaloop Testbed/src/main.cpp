@@ -2,9 +2,9 @@
 #include "constants.h"
 #include "math/PID/PID.h"
 
-
+// ==== VARIABLES ====
 pid hvsPID(HVS_PID);
-pid thermocouplePID(thermocouple_PID);
+aapid thermocouplePID(thermocouple_PID);
 
 weights w = weights{
     std::vector<pressureRangeWeight>{
@@ -14,19 +14,7 @@ weights w = weights{
     }
 };
 
-
-void setup() {
-    Serial.begin(115200);
-}
-
-void loop() {
-  // Todo: fix hertz to synchronize both sensor's frequencies
-  float p = getCurrentPressureTorr();
-  float hvsCmd = hvsPID.compute(p, targetPressureTorr);
-  float thermocoupleCmd = thermocouplePID.compute(getPressureDifferential(getTemperature()), 0); 
-  setSolenoidDutyCycle(w.getWeight(p).hvsWeight * hvsCmd + w.getWeight(p).thermocoupleWeight * thermocoupleCmd);
-}
-
+// ==== HELPER FUNCTIONS ====
 void setSolenoidDutyCycle(float dutyCycle) {
   // FIXME: implement, such that 0: fully closed and 1: fully open
 }
@@ -50,4 +38,17 @@ float smithPredictor(float input) {
   // FIXME: implement
   // Predict future state of input by looking at its trends https://en.wikipedia.org/wiki/Smith_predictor
   return input;
+}
+
+// ==== PROGRAM ENTRY POINTS ====
+void setup() {
+    Serial.begin(115200);
+}
+
+void loop() {
+  // Todo: fix hertz to synchronize both sensor's frequencies
+  float p = getCurrentPressureTorr();
+  float hvsCmd = hvsPID.compute(p, targetPressureTorr);
+  float thermocoupleCmd = thermocouplePID.compute(getPressureDifferential(getTemperature()), 0); 
+  setSolenoidDutyCycle(w.getWeight(p).hvsWeight * hvsCmd + w.getWeight(p).thermocoupleWeight * thermocoupleCmd);
 }
